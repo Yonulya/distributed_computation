@@ -8,6 +8,7 @@ import argparse
 from dask.distributed import Client, as_completed
 from db_writer import DBWriter
 import time
+from worker.ping_task import ping_host
 
 BATCH_WRITE = 5000
 
@@ -25,7 +26,7 @@ def main(scheduler, db_path, hosts_path, batch_size=BATCH_WRITE, chunk_size=1000
     futures = []
     for i in range(0, len(hosts), chunk_size):
         chunk = hosts[i:i + chunk_size]
-        fs = client.map("worker.ping_task.ping_host", chunk)
+        fs = client.map(ping_host, chunk)
         futures.extend(fs)
 
     print(f"Submitted {len(futures)} tasks")
