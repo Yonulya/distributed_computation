@@ -8,7 +8,7 @@ import argparse
 from dask.distributed import Client, as_completed
 from db_writer import DBWriter
 import time
-from worker.ping_task import ping_host
+from dask.worker.ping_task import ping_host
 
 BATCH_WRITE = 5000
 
