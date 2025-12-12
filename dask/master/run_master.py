@@ -21,6 +21,7 @@ def main(scheduler, db_path, hosts_path, batch_size=BATCH_WRITE, chunk_size=1000
     print("Connected to Dask scheduler:", client)
 
     hosts = read_hosts(hosts_path)
+    print(hosts)
 
     # Submit tasks in chunks to avoid creating millions of futures
     futures = []

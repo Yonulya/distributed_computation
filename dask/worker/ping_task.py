@@ -9,8 +9,10 @@ def ping_host(hostname: str, count: int = 1, timeout: int = 1):
     """Return (hostname, status).
     status could be 'up' or 'down' or an error string.
     """
+    print("in ping_host")
     try:
         resp = ping(hostname, size=40, count=count, timeout=timeout)
+        print(f'{hostname} returned {resp}')
         # If any packet received, consider host up
         ok = any([p.success for p in resp._responses])
         return hostname, "up" if ok else "down"
