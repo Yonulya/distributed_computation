@@ -2,3 +2,4 @@ dask[distributed]==2025.11.0
 pandas==2.3.3
 pythonping==1.1.4
 bokeh==3.8.1
+jupyter_server_proxy==4.4.0
