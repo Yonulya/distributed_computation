@@ -1,32 +1,25 @@
 import argparse
-from dask.distributed import Client
+from dask.distributed import Client, as_completed
 
 from distributed_computation.worker.tasks import ping_multiple_websites_task
 from distributed_computation.master.db_class import DBClass
 
 
-def main(scheduler: str, db_path: str, limit: int, batch_size: int, chunk: str):
+def main(scheduler: str, db_path: str, limit: int, chunk_size: int):
     client = Client(scheduler)
     print("Connected to Dask:", client)
 
     db = DBClass(db_path)
     hosts = db.load_hosts(limit)
-    
-    futures = client.map(ping_multiple_websites_task, hosts, chunk)
+    futures = []
+    for i in range(0, len(hosts), chunk_size):
+        hosts_chunked = hosts[i:i + chunk_size]
+        fs = client.submit(ping_multiple_websites_task, hosts_chunked)
+        futures.append(fs)
 
-    batch = []
-    updates = []
-    for future in futures:
-        batch.append(future.result())
-        
-        updates = [(status, url) for url, status in batch]
-        if len(updates) >= batch_size:
-            db.write_updates(updates)
-            batch.clear()
-
-    if batch:
-        db.write_updates(updates)
-
+    for future in as_completed(futures):
+        updates = [(status, url) for url, status in future.result()]
+        db.write_batch(updates)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -47,7 +40,6 @@ if __name__ == "__main__":
     main(
         scheduler=args.scheduler,
         db_path="D:/storage.db",
-        limit=5000,#int(1*10**4.7),
-        batch_size=1000,
-        chunk="500"
+        limit=int(1*10**4.7),
+        chunk_size=5000
     )

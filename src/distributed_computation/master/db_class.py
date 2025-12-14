@@ -25,7 +25,7 @@ class DBClass:
         self.conn.commit()
 
     def load_hosts(self, limit: int) -> list[str]:
-        self.cur.execute(f"SELECT item FROM mytable where value is null limit {limit}")
-        urls = self.cur.fetchall()
+        self.cur.execute("SELECT item FROM mytable WHERE value IS NULL LIMIT ?",(limit,))
+        urls = [row[0] for row in self.cur]
     
         return urls

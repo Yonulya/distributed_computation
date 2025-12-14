@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Dask Master",
+      "type": "python",
+      "request": "launch",
+
+      // IMPORTANT: run as a module
+      "module": "distributed_computation.master.run_master",
+
+      // command-line arguments
+      "args": [
+        "--scheduler", "tcp://192.168.1.69:8786"/*,
+        "--db", "hosts.db",
+        "--hosts", "hosts.txt"*/
+      ],
+
+      // ensures imports work exactly like CLI
+      "cwd": "${workspaceFolder}",
+
+      // optional but useful
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    }
+  ]
+}
