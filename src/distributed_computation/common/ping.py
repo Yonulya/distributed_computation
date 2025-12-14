@@ -1,26 +1,13 @@
-import subprocess
-import platform
+import requests
 
 
-def ping_host(host: str) -> tuple[str, bool]:
-    """
-    Ping a host once.
-    Returns (host, success)
-    """
-    system = platform.system().lower()
-
-    if system == "windows":
-        cmd = ["ping", "-n", "1", host]
-    else:
-        cmd = ["ping", "-c", "1", host]
-
+# Function to ping website
+def ping_website(url: str) -> tuple[str, str]:
     try:
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=3,
-        )
-        return host, result.returncode == 0
-    except Exception:
-        return host, False
+        response = requests.get(url, timeout=1)
+        # is_display = random.randint(0, 1000)
+        # if is_display >= 0:
+        #     print(f'{datetime.datetime.now().isoformat()} : \t\t {url[0]} \t returned \t {response.status_code}')
+        return url, response.status_code
+    except Exception as e:
+        return url, str(e)

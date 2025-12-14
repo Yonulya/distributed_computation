@@ -7,7 +7,8 @@ cur = conn.cursor()
 # cur.execute("PRAGMA synchronous = NORMAL")
 
 # cur.execute("SELECT substr(value, 1, 20) as value, count(*) as count FROM mytable where value is not null group by substr(value, 1, 20)")
-cur.execute("SELECT * FROM mytable where value is not null order by random() limit 10")
+# cur.execute("SELECT * FROM mytable where value is not null order by random() limit 10")
+cur.execute("SELECT count(*) FROM mytable where value is not null")
 
 results = cur.fetchall()
 

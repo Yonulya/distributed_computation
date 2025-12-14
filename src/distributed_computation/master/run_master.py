@@ -1,48 +1,45 @@
 import argparse
-from dask.distributed import Client
+from dask.distributed import Client, as_completed
 
-from distributed_computation.worker.tasks import ping_task
-from distributed_computation.master.db_writer import DBWriter
-
-
-def load_hosts(path: str) -> list[str]:
-    with open(path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip()]
+from distributed_computation.worker.tasks import ping_multiple_websites_task
+from distributed_computation.master.db_class import DBClass
 
 
-def main(scheduler: str, db_path: str, hosts_file: str, batch_size: int):
+def main(scheduler: str, db_path: str, limit: int, chunk_size: int):
     client = Client(scheduler)
     print("Connected to Dask:", client)
 
-    hosts = load_hosts(hosts_file)
-    writer = DBWriter(db_path)
+    db = DBClass(db_path)
+    hosts = db.load_hosts(limit)
+    futures = []
+    for i in range(0, len(hosts), chunk_size):
+        hosts_chunked = hosts[i:i + chunk_size]
+        fs = client.submit(ping_multiple_websites_task, hosts_chunked)
+        futures.append(fs)
 
-    futures = client.map(ping_task, hosts)
-
-    batch = []
-    for future in futures:
-        batch.append(future.result())
-
-        if len(batch) >= batch_size:
-            writer.write_batch(batch)
-            batch.clear()
-
-    if batch:
-        writer.write_batch(batch)
-
+    for future in as_completed(futures):
+        updates = [(status, url) for url, status in future.result()]
+        db.write_batch(updates)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--scheduler", required=True)
-    parser.add_argument("--db", required=True)
-    parser.add_argument("--hosts", required=True)
-    parser.add_argument("--batch-size", type=int, default=100)
+    # parser.add_argument("--db", required=True)
+    # parser.add_argument("--hosts", required=True)
+    # parser.add_argument("--batch-size", type=int, default=5000)
 
     args = parser.parse_args()
 
+    # main(
+    #     scheduler=args.scheduler,
+    #     db_path=args.db,
+    #     hosts_file=args.hosts,
+    #     batch_size=args.batch_size,
+    # )
+
     main(
         scheduler=args.scheduler,
-        db_path=args.db,
-        hosts_file=args.hosts,
-        batch_size=args.batch_size,
+        db_path="D:/storage.db",
+        limit=int(1*10**4.7),
+        chunk_size=5000
     )
