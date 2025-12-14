@@ -4,7 +4,7 @@ from dask.distributed import Client, as_completed
 from distributed_computation.worker.tasks import ping_multiple_websites_task
 from distributed_computation.master.db_class import DBClass
 
-def main(scheduler: str, db_path: str, limit: int, chunk_size: int, max_workers: int):
+def main(scheduler: str, db_path: str, limit: int, chunk_size: int):
     client = Client(scheduler)
     print("Connected to Dask:", client)
 
@@ -13,7 +13,7 @@ def main(scheduler: str, db_path: str, limit: int, chunk_size: int, max_workers:
     futures = []
     for i in range(0, len(hosts), chunk_size):
         hosts_chunked = hosts[i:i + chunk_size]
-        fs = client.submit(ping_multiple_websites_task, hosts_chunked, max_workers)
+        fs = client.submit(ping_multiple_websites_task, hosts_chunked)
         futures.append(fs)
 
     try:
@@ -47,6 +47,5 @@ if __name__ == "__main__":
         scheduler=args.scheduler,
         db_path="D:/storage.db",
         limit=int(1*10**5),
-        chunk_size=200,
-        max_workers=1000
+        chunk_size=200
     )
