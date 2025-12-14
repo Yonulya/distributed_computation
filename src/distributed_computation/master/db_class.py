@@ -23,6 +23,7 @@ class DBClass:
     def write_batch(self, updates: list[tuple[str, str]]):
         self.cur.executemany("UPDATE mytable SET value = ? WHERE item = ?", updates)
         self.conn.commit()
+        print(f'Wrote {len((updates))} updates')
 
     def load_hosts(self, limit: int) -> list[str]:
         self.cur.execute("SELECT item FROM mytable WHERE value IS NULL LIMIT ?",(limit,))

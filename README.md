@@ -131,10 +131,12 @@ dask worker tcp://<scheduler-ip>:8786
 Optional tuning:
 
 ```bash
-dask worker tcp://<scheduler-ip>:8786 \
-  --nthreads 4 \
-  --memory-limit 8GB
+dask worker tcp://<scheduler-ip>:8786 --nthreads 16 --memory-limit 8GB
 ```
+
+To prevent Ubuntu client from sleeping : 
+```bash
+systemd-inhibit --what=sleep:idle --why="Dask worker running" dask worker tcp://<scheduler-ip>:8786 --nthreads 16 --memory-limit 8GB
 
 ---
 

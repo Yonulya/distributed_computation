@@ -40,6 +40,6 @@ if __name__ == "__main__":
     main(
         scheduler=args.scheduler,
         db_path="D:/storage.db",
-        limit=int(1*10**4.7),
-        chunk_size=5000
+        limit=int(1*10**5),
+        chunk_size=1000
     )
